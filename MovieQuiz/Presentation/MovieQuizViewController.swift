@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex: Int = 0
     private var correctAnswer: Int = 0
@@ -19,10 +20,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         
         statisticService = StatisticServiceImplementation()
-        
-        questionFactory = QuestionFactory(delegate: self)
-        
-        questionFactory?.requestNextQuestion()
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -41,7 +41,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -98,34 +98,70 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    @IBAction private func yesButtonlicked(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        var givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
-        }
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
     }
     
-    @IBAction private func noButtonClicked(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        var givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer )
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(meesage: String) {
+        hideLoadingIndicator()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
+        let model = AlertModel(title: "Ошибка",
+                               message: meesage,
+                               buttonText: "Попробовать ещё раз") { [weak self] in guard let self = self else { return }
+            self.currentQuestionIndex = 0
+            self.correctAnswer = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        let alert = UIAlertController(title: title, message: meesage, preferredStyle: .alert)
+        let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
+        }
+        alert.addAction(action)
+    }
+    
+    func didLoadDataFromService() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+       
+    func didFailToLoad(with error: Error) {
+        showNetworkError(meesage: error.localizedDescription)
+    }
+    
+        @IBAction private func yesButtonlicked(_ sender: Any) {
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
+            var givenAnswer = true
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+            yesButton.isEnabled = false
+            noButton.isEnabled = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.yesButton.isEnabled = true
+                self.noButton.isEnabled = true
+            }
+        }
+        
+        @IBAction private func noButtonClicked(_ sender: Any) {
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
+            var givenAnswer = false
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer )
+            yesButton.isEnabled = false
+            noButton.isEnabled = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                self.yesButton.isEnabled = true
+                self.noButton.isEnabled = true
         }
     }
 }

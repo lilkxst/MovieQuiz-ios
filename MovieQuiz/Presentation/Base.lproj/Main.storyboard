@@ -109,16 +109,22 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="4sb-NE-29K">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstItem="4sb-NE-29K" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="2ey-Cg-XPT"/>
+                            <constraint firstItem="4sb-NE-29K" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="RoN-RB-AnI"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dRg-iy-Iln" secondAttribute="trailing" constant="20" id="VfZ-R5-fng"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="dRg-iy-Iln" secondAttribute="top" constant="10" id="hwy-aT-1xK"/>
                             <constraint firstItem="dRg-iy-Iln" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="voY-8g-iIm"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="4sb-NE-29K" id="QH6-wG-LrV"/>
                         <outlet property="counterLabel" destination="vwy-0g-NV7" id="jPa-kH-EOb"/>
                         <outlet property="imageView" destination="IUH-aW-ucJ" id="Yya-k3-Z5r"/>
                         <outlet property="noButton" destination="oBr-be-TCD" id="ig2-fI-Kal"/>

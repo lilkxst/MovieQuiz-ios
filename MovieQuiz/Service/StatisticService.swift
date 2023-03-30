@@ -11,7 +11,8 @@ import Foundation
 
 final class StatisticServiceImplementation: StatisticService {
     func store(correct count: Int, total amount: Int) {
-        let simpleGame = GameRecord(correct: self.bestGame.correct, total: self.bestGame.total, date: Date())
+        let savedGame = bestGame
+        let simpleGame = GameRecord(correct: savedGame.correct, total: savedGame.total, date: Date())
         var recordGame = GameRecord(correct: count, total: amount, date: Date())
         let oldCount = self.gamesCount
         if recordGame.correct <= simpleGame.correct {
