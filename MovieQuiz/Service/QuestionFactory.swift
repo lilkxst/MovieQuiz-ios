@@ -95,10 +95,21 @@ class QuestionFactory: QuestionFactoryProtocol {
             
             let rating = Float(movie.rating) ?? 0
             
-            let randomRatingValue = Int.random(in: 1...9)
+            let randomRatingValue = Int.random(in: 6...9)
             
-            let text = "Рейтинг этого фильма больше чем \(randomRatingValue)?"
-            let correctAnswer = rating > Float(randomRatingValue)
+            let boolOperator: String
+            var randomCount = Int.random(in: 0...1)
+            if randomCount == 0 { boolOperator = "больше"
+            } else {
+                boolOperator = "меньше"
+            }
+            
+            let text = "Рейтинг этого фильма \(boolOperator) чем \(randomRatingValue)?"
+            let correctAnswer: Bool
+            if randomCount == 0 { correctAnswer = rating > Float(randomRatingValue)
+            } else {
+                correctAnswer = rating < Float(randomRatingValue)
+            }
             
             let question = QuizQuestion(image: imageData,
                                         text: text,

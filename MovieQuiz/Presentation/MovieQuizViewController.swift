@@ -99,30 +99,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
     private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    private func showNetworkError(meesage: String) {
+    private func showNetworkError(message: String) {
         hideLoadingIndicator()
-        
-        let model = AlertModel(title: "Ошибка",
-                               message: meesage,
+    
+        let model = AlertModel(title: "Что-то пошло не так(",
+                               message: message,
                                buttonText: "Попробовать ещё раз") { [weak self] in guard let self = self else { return }
             self.currentQuestionIndex = 0
             self.correctAnswer = 0
             
-            self.questionFactory?.requestNextQuestion()
+            self.questionFactory?.loadData()
         }
-        let alert = UIAlertController(title: title, message: meesage, preferredStyle: .alert)
+        let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
         let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
+            self.showLoadingIndicator()
+            self.questionFactory?.loadData()
         }
         alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
     }
     
     func didLoadDataFromService() {
@@ -131,7 +132,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
        
     func didFailToLoad(with error: Error) {
-        showNetworkError(meesage: error.localizedDescription)
+        showNetworkError(message: error.localizedDescription)
     }
     
         @IBAction private func yesButtonlicked(_ sender: Any) {
